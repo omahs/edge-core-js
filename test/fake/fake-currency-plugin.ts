@@ -247,7 +247,7 @@ class FakeCurrencyEngine implements EdgeCurrencyEngine {
 
   // Spending:
   makeSpend(spendInfo: EdgeSpendInfo): Promise<EdgeTransaction> {
-    const { currencyCode = 'FAKE', spendTargets } = spendInfo
+    const { currencyCode = 'FAKE', tokenId = null, spendTargets } = spendInfo
 
     // Check the spend targets:
     let total = '0'
@@ -266,6 +266,7 @@ class FakeCurrencyEngine implements EdgeCurrencyEngine {
     return Promise.resolve({
       blockHeight: 0,
       currencyCode,
+      tokenId,
       date: GENESIS_BLOCK,
       feeRateUsed: { fakePrice: 0 },
       isSend: false,
@@ -372,6 +373,7 @@ function nop(...args: unknown[]): void {}
 const blankTx: EdgeTransaction = {
   blockHeight: 0,
   currencyCode: 'FAKE',
+  tokenId: null,
   date: GENESIS_BLOCK,
   isSend: false,
   memos: [],

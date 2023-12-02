@@ -492,6 +492,9 @@ export interface EdgeTransaction {
   currencyCode: string
   nativeAmount: string
 
+  // Null if specifying the parent currency
+  tokenId: string | null
+
   // Fees:
   networkFee: string
   parentNetworkFee?: string
