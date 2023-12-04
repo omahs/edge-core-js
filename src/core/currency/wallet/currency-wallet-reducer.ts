@@ -41,7 +41,7 @@ export interface TxidHashes {
 }
 
 export interface MergedTransaction {
-  action?: EdgeTxAction
+  chainAction?: EdgeTxAction
   blockHeight: number
   confirmations: EdgeTransaction['confirmations']
   currencyCode: string
@@ -431,7 +431,7 @@ export function mergeTx(
   oldTx: MergedTransaction = defaultTx
 ): MergedTransaction {
   const {
-    action,
+    chainAction,
     currencyCode = defaultCurrency,
     tokenId,
     isSend = lt(tx.nativeAmount, '0'),
@@ -439,7 +439,7 @@ export function mergeTx(
   } = tx
 
   const out: MergedTransaction = {
-    action,
+    chainAction,
     blockHeight: tx.blockHeight,
     confirmations: tx.confirmations ?? 'unconfirmed',
     currencyCode,
