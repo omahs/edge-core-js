@@ -262,10 +262,18 @@ const currencyWalletInner = buildReducer<
     return state
   },
 
-  balances(state = {}, action): EdgeBalances {
+  balances(state = {}, action, next): EdgeBalances {
     if (action.type === 'CURRENCY_ENGINE_CHANGED_BALANCE') {
+      const { tokenId } = action.payload
+      const { currencyInfo, pluginId } = next.self
+      const { allTokens } = next.root.accounts[next.self.accountId]
+
+      const { currencyCode } =
+        tokenId == null ? currencyInfo : allTokens[pluginId][tokenId]
+
       const out = { ...state }
-      out[action.payload.currencyCode] = action.payload.balance
+
+      out[currencyCode] = action.payload.balance
       return out
     }
     return state

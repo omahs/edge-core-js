@@ -835,8 +835,8 @@ export interface EdgeSignMessageOptions {
 export interface EdgeCurrencyEngineCallbacks {
   readonly onAddressChanged: () => void
   readonly onAddressesChecked: (progressRatio: number) => void
-  readonly onBalanceChanged: (
-    currencyCode: string,
+  readonly onTokenBalanceChanged: (
+    tokenId: string | null,
     nativeBalance: string
   ) => void
   readonly onNewTokens: (tokenIds: string[]) => void

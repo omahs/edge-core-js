@@ -174,23 +174,23 @@ export function makeCurrencyWalletCallbacks(
       })
     },
 
-    onBalanceChanged(currencyCode: string, balance: string) {
+    onTokenBalanceChanged(tokenId: string | null, balance: string) {
       const clean = asMaybe(asIntegerString)(balance)
       if (clean == null) {
         input.props.onError(
           new Error(
-            `Plugin sent bogus balance for ${currencyCode}: "${balance}"`
+            `Plugin sent bogus balance for ${String(tokenId)}: "${balance}"`
           )
         )
         return
       }
       pushUpdate({
-        id: `${walletId}==${currencyCode}`,
-        action: 'onBalanceChanged',
+        id: `${walletId}==${tokenId}`,
+        action: 'onTokenBalanceChanged',
         updateFunc: () => {
           input.props.dispatch({
             type: 'CURRENCY_ENGINE_CHANGED_BALANCE',
-            payload: { balance: clean, currencyCode, walletId }
+            payload: { balance: clean, tokenId, walletId }
           })
         }
       })

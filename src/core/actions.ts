@@ -152,11 +152,11 @@ export type RootAction =
       type: 'CORE_PLUGINS_LOCKED'
     }
   | {
-      // Called when a currency engine fires the onBalanceChanged callback.
+      // Called when a currency engine fires the onTokenBalanceChanged callback.
       type: 'CURRENCY_ENGINE_CHANGED_BALANCE'
       payload: {
         balance: string
-        currencyCode: string
+        tokenId: string | null
         walletId: string
       }
     }
