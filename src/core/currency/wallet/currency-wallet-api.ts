@@ -418,8 +418,8 @@ export function makeCurrencyWalletApi(
 
         return await engine.getMaxSpendable(spendInfo, { privateKeys })
       }
-      const { currencyCode, networkFeeOption, customNetworkFee } = spendInfo
-      const balance = engine.getBalance({ currencyCode })
+      const { tokenId, networkFeeOption, customNetworkFee } = spendInfo
+      const balance = engine.getTokenBalance({ tokenId })
 
       // Copy all the spend targets, setting the amounts to 0
       // but keeping all other information so we can get accurate fees:
@@ -444,7 +444,7 @@ export function makeCurrencyWalletApi(
         return engine
           .makeSpend(
             {
-              currencyCode,
+              tokenId,
               spendTargets,
               networkFeeOption,
               customNetworkFee
@@ -482,16 +482,9 @@ export function makeCurrencyWalletApi(
         skipChecks,
         savedAction,
         spendTargets = [],
-        swapData
+        swapData,
+        tokenId
       } = spendInfo
-
-      // Figure out which asset this is:
-      const { currencyCode, tokenId } = upgradeCurrencyCode({
-        allTokens: input.props.state.accounts[accountId].allTokens[pluginId],
-        currencyInfo: plugin.currencyInfo,
-        currencyCode: spendInfo.currencyCode,
-        tokenId: spendInfo.tokenId
-      })
 
       // Check the spend targets:
       const cleanTargets: EdgeSpendTarget[] = []
@@ -513,7 +506,6 @@ export function makeCurrencyWalletApi(
           uniqueIdentifier: memo
         })
         savedTargets.push({
-          currencyCode,
           memo,
           nativeAmount,
           publicAddress,
@@ -530,7 +522,6 @@ export function makeCurrencyWalletApi(
 
       const tx: EdgeTransaction = await engine.makeSpend(
         {
-          currencyCode,
           customNetworkFee,
           memos,
           metadata,
@@ -753,7 +744,6 @@ export function combineTxWithFile(
 
     if (file.payees != null) {
       out.spendTargets = file.payees.map(payee => ({
-        currencyCode: payee.currency,
         memo: payee.tag,
         nativeAmount: payee.amount,
         publicAddress: payee.address,

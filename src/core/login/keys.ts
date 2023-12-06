@@ -367,7 +367,7 @@ export async function createCurrencyWallet(
 async function protectBchWallet(wallet: EdgeCurrencyWallet): Promise<void> {
   // Create a UTXO which can be spend only on the ABC network
   const spendInfoSplit: EdgeSpendInfo = {
-    currencyCode: 'BCH',
+    tokenId: null,
     spendTargets: [
       {
         nativeAmount: '10000',
@@ -386,7 +386,7 @@ async function protectBchWallet(wallet: EdgeCurrencyWallet): Promise<void> {
   // Taint the rest of the wallet using the UTXO from before
   const { publicAddress } = await wallet.getReceiveAddress()
   const spendInfoTaint: EdgeSpendInfo = {
-    currencyCode: 'BCH',
+    tokenId: null,
     spendTargets: [{ publicAddress, nativeAmount: '0' }],
     metadata: {},
     networkFeeOption: 'high'

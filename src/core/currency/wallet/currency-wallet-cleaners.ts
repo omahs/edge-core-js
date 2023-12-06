@@ -65,7 +65,6 @@ export interface TransactionFile {
   payees?: Array<{
     address: string
     amount: string
-    currency: string
     tag?: string
   }>
   savedAction?: EdgeTxAction
@@ -355,7 +354,6 @@ export const asTransactionFile = asObject<TransactionFile>({
       asObject({
         address: asString,
         amount: asString,
-        currency: asString,
         tag: asOptional(asString)
       })
     )

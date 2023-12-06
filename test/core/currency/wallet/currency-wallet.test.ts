@@ -401,13 +401,13 @@ describe('currency wallets', function () {
     await config.changeUserSettings({ balance: 50 })
 
     const maxSpendable = await wallet.getMaxSpendable({
-      currencyCode: 'FAKE',
+      tokenId: null,
       spendTargets: [{}]
     })
     expect(maxSpendable).equals('50')
 
     await wallet.makeSpend({
-      currencyCode: 'FAKE',
+      tokenId: null,
       spendTargets: [
         {
           nativeAmount: maxSpendable,
@@ -418,7 +418,7 @@ describe('currency wallets', function () {
 
     await expectRejection(
       wallet.makeSpend({
-        currencyCode: 'FAKE',
+        tokenId: null,
         spendTargets: [
           {
             nativeAmount: add(maxSpendable, '1'),
@@ -499,7 +499,7 @@ describe('currency wallets', function () {
       payoutWalletId: wallet.id
     }
     let tx = await wallet.makeSpend({
-      currencyCode: 'FAKE',
+      tokenId: null,
       spendTargets: [
         {
           uniqueIdentifier: 'hello',
@@ -534,7 +534,6 @@ describe('currency wallets', function () {
     expect(txs[0].feeRateUsed).deep.equals({ fakePrice: 0 })
     expect(txs[0].spendTargets).deep.equals([
       {
-        currencyCode: 'FAKE',
         memo: 'hello',
         nativeAmount: '50',
         publicAddress: 'somewhere',

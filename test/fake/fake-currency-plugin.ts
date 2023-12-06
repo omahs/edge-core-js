@@ -17,11 +17,13 @@ import {
   EdgeSpendInfo,
   EdgeStakingStatus,
   EdgeToken,
+  EdgeTokenIdOptions,
   EdgeTokenMap,
   EdgeTransaction,
   EdgeWalletInfo,
   InsufficientFundsError,
-  JsonObject
+  JsonObject,
+  PARENT_TOKEN_ID
 } from '../../src/index'
 import { compare } from '../../src/util/compare'
 
@@ -196,12 +198,12 @@ class FakeCurrencyEngine implements EdgeCurrencyEngine {
     return this.state.blockHeight
   }
 
-  getBalance(opts: EdgeCurrencyCodeOptions): string {
-    const { currencyCode = 'FAKE' } = opts
-    switch (currencyCode) {
-      case 'FAKE':
+  getTokenBalance(opts: EdgeTokenIdOptions): string {
+    const { tokenId } = opts
+    switch (tokenId ?? PARENT_TOKEN_ID) {
+      case PARENT_TOKEN_ID:
         return this.state.balance.toString()
-      case 'TOKEN':
+      case '0XF98103E9217F099208569D295C1B276F1821348636C268C854BB2A086E0037CD':
         return this.state.tokenBalance.toString()
       default:
         throw new Error('Unknown currency')
@@ -251,7 +253,9 @@ class FakeCurrencyEngine implements EdgeCurrencyEngine {
 
   // Spending:
   makeSpend(spendInfo: EdgeSpendInfo): Promise<EdgeTransaction> {
-    const { currencyCode = 'FAKE', tokenId = null, spendTargets } = spendInfo
+    const { tokenId = null, spendTargets } = spendInfo
+
+    const currencyCode = tokenId == null ? 'FAKE' : 'TOKEN'
 
     // Check the spend targets:
     let total = '0'
@@ -262,7 +266,7 @@ class FakeCurrencyEngine implements EdgeCurrencyEngine {
     }
 
     // Check the balances:
-    if (lt(this.getBalance({ currencyCode }), total)) {
+    if (lt(this.getTokenBalance({ tokenId }), total)) {
       return Promise.reject(new InsufficientFundsError())
     }
 
