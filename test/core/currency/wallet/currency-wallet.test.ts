@@ -481,7 +481,7 @@ describe('currency wallets', function () {
       canBePartial: false,
       sourceAsset: {
         pluginId: 'bitcoin',
-        tokenId: undefined,
+        tokenId: null,
         nativeAmount: '1234'
       },
       destAsset: {
@@ -584,7 +584,7 @@ describe('currency wallets', function () {
       canBePartial: false,
       sourceAsset: {
         pluginId: 'bitcoin',
-        tokenId: undefined,
+        tokenId: null,
         nativeAmount: '1234'
       },
       destAsset: {
