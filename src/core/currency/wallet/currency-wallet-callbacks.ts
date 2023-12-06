@@ -3,7 +3,6 @@ import { asMaybe } from 'cleaners'
 import { isPixieShutdownError } from 'redux-pixies'
 import { emit } from 'yaob'
 
-import { upgradeCurrencyCode } from '../../../types/type-helpers'
 import {
   EdgeCurrencyEngineCallbacks,
   EdgeStakingStatus,
@@ -84,10 +83,6 @@ function makeThrottledTxCallback(
 export function makeCurrencyWalletCallbacks(
   input: CurrencyWalletInput
 ): EdgeCurrencyEngineCallbacks {
-  const { accountId, pluginId } = input.props.walletState
-  const { accountApi } = input.props.output.accounts[accountId]
-  const currencyConfig = accountApi.currencyConfig[pluginId]
-
   const { walletId } = input.props
 
   // If this is a unit test, lower throttling to something testable:
@@ -285,17 +280,6 @@ export function makeCurrencyWalletCallbacks(
         }
         if (tx.isSend == null) tx.isSend = lt(tx.nativeAmount, '0')
         if (tx.memos == null) tx.memos = []
-
-        // In case the plugin doesn't fill in the tokenId, do it for them
-        if (tx.tokenId === undefined) {
-          const { allTokens, currencyInfo } = currencyConfig
-          const { tokenId } = upgradeCurrencyCode({
-            allTokens,
-            currencyInfo,
-            currencyCode: tx.currencyCode
-          })
-          tx.tokenId = tokenId ?? null
-        }
       }
 
       // Grab stuff from redux:

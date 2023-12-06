@@ -214,7 +214,7 @@ export type RootAction =
       type: 'CURRENCY_ENGINE_GOT_TXS'
       payload: {
         walletId: string
-        currencyCode: string
+        tokenId: string | null
       }
     }
   | {

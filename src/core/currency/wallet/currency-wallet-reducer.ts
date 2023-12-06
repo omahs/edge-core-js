@@ -376,11 +376,11 @@ const currencyWalletInner = buildReducer<
     return state
   },
 
-  gotTxs(state = {}, action): { [currencyCode: string]: boolean } {
+  gotTxs(state = {}, action): { [tokenId: string]: boolean } {
     switch (action.type) {
       case 'CURRENCY_ENGINE_GOT_TXS': {
-        const { currencyCode } = action.payload
-        return { ...state, [currencyCode]: true }
+        const { tokenId } = action.payload
+        return { ...state, [tokenId ?? PARENT_TOKEN_ID]: true }
       }
       case 'CURRENCY_ENGINE_CLEARED':
         return {}

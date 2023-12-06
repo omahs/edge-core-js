@@ -2,7 +2,6 @@ import { add, lt } from 'biggystring'
 import { asNumber, asObject, asOptional, asString } from 'cleaners'
 
 import {
-  EdgeCurrencyCodeOptions,
   EdgeCurrencyEngine,
   EdgeCurrencyEngineCallbacks,
   EdgeCurrencyEngineOptions,
@@ -210,7 +209,7 @@ class FakeCurrencyEngine implements EdgeCurrencyEngine {
     }
   }
 
-  getNumTransactions(opts: EdgeCurrencyCodeOptions): number {
+  getNumTransactions(opts: EdgeTokenIdOptions): number {
     return Object.keys(this.state.txs).length
   }
 
