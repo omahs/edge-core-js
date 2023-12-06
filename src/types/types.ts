@@ -1245,18 +1245,12 @@ export interface EdgeSwapRequest {
   toWallet: EdgeCurrencyWallet
 
   // What?
-  fromTokenId?: string
-  toTokenId?: string
+  fromTokenId: string | null
+  toTokenId: string | null
 
   // How much?
   nativeAmount: string
   quoteFor: 'from' | 'max' | 'to'
-
-  /** @deprecated Use fromTokenId instead */
-  fromCurrencyCode?: string
-
-  /** @deprecated Use toTokenId instead */
-  toCurrencyCode?: string
 }
 
 /**
