@@ -377,7 +377,7 @@ export function makeCurrencyWalletApi(
 
     // Addresses:
     async getReceiveAddress(
-      opts: EdgeGetReceiveAddressOptions = {}
+      opts: EdgeGetReceiveAddressOptions = { tokenId: null }
     ): Promise<EdgeReceiveAddress> {
       const freshAddress = await engine.getFreshAddress(opts)
       const receiveAddress: EdgeReceiveAddress = {
