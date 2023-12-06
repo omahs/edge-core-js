@@ -5,12 +5,14 @@ import { describe, it } from 'mocha'
 
 import {
   EdgeAccount,
+  EdgeAssetAction,
   EdgeContext,
   EdgeCurrencyConfig,
   EdgeCurrencyWallet,
   EdgeMetadata,
   EdgeToken,
   EdgeTransaction,
+  EdgeTxAction,
   EdgeTxSwap,
   makeFakeEdgeWorld
 } from '../../../../src/index'
@@ -172,8 +174,13 @@ describe('currency wallets', function () {
     const { wallet, config } = fixture
     await config.changeUserSettings({
       txs: {
-        a: { currencyCode: 'FAKE', nativeAmount: '2' },
-        b: { currencyCode: 'TOKEN', nativeAmount: '200' }
+        a: { currencyCode: 'FAKE', nativeAmount: '2', tokenId: null },
+        b: {
+          currencyCode: 'TOKEN',
+          nativeAmount: '200',
+          tokenId:
+            'f98103e9217f099208569d295c1b276f1821348636c268c854bb2a086e0037cd'
+        }
       }
     })
 
@@ -430,6 +437,36 @@ describe('currency wallets', function () {
 
     // Perform the spend:
     const metadata: EdgeMetadata = { name: 'me' }
+    const assetAction: EdgeAssetAction = {
+      assetActionType: 'swap'
+    }
+    const savedAction: EdgeTxAction = {
+      actionType: 'swap',
+      swapInfo: {
+        pluginId: 'myplugin',
+        displayName: 'My Plugin',
+        supportEmail: 'support@myemail.com',
+        isDex: false,
+        orderUri: undefined
+      },
+      isEstimate: false,
+      payoutAddress: '0xpayoutaddress',
+      payoutWalletId: '0xwalletid',
+      refundAddress: undefined,
+      orderId: 'myorderid',
+      orderUri: 'https://myplugin.com',
+      canBePartial: false,
+      sourceAsset: {
+        pluginId: 'bitcoin',
+        tokenId: undefined,
+        nativeAmount: '1234'
+      },
+      destAsset: {
+        pluginId: 'ethereum',
+        tokenId: 'mytokenid',
+        nativeAmount: '2345'
+      }
+    }
     const swapData: EdgeTxSwap = {
       orderId: '1234',
       isEstimate: true,
@@ -453,6 +490,8 @@ describe('currency wallets', function () {
         }
       ],
       metadata,
+      assetAction,
+      savedAction,
       swapData,
       networkFeeOption: 'high'
     })
@@ -484,6 +523,8 @@ describe('currency wallets', function () {
         uniqueIdentifier: 'hello'
       }
     ])
+    expect(txs[0].assetAction).deep.equals(assetAction)
+    expect(txs[0].savedAction).deep.equals(savedAction)
     expect(txs[0].swapData).deep.equals({
       orderUri: undefined,
       refundAddress: undefined,
@@ -500,8 +541,40 @@ describe('currency wallets', function () {
       name: 'me',
       amountFiat: 0.75
     }
+    const assetAction: EdgeAssetAction = {
+      assetActionType: 'swap'
+    }
+    const savedAction: EdgeTxAction = {
+      actionType: 'swap',
+      swapInfo: {
+        pluginId: 'myplugin',
+        displayName: 'My Plugin',
+        supportEmail: 'support@myemail.com',
+        isDex: false,
+        orderUri: undefined
+      },
+      isEstimate: false,
+      payoutAddress: '0xpayoutaddress',
+      payoutWalletId: '0xwalletid',
+      refundAddress: undefined,
+      orderId: 'myorderid',
+      orderUri: 'https://myplugin.com',
+      canBePartial: false,
+      sourceAsset: {
+        pluginId: 'bitcoin',
+        tokenId: undefined,
+        nativeAmount: '1234'
+      },
+      destAsset: {
+        pluginId: 'ethereum',
+        tokenId: 'mytokenid',
+        nativeAmount: '2345'
+      }
+    }
+
     await config.changeUserSettings({ txs: { a: { nativeAmount: '25' } } })
     await wallet.saveTxMetadata('a', 'FAKE', metadata)
+    await wallet.saveTxAction('a', null, assetAction, savedAction)
 
     const txs = await wallet.getTransactions({})
     expect(txs.length).equals(1)
@@ -512,6 +585,47 @@ describe('currency wallets', function () {
       notes: undefined,
       exchangeAmount: { 'iso:USD': 0.75 },
       ...metadata
+    })
+    expect(txs[0].savedAction).deep.equals(savedAction)
+  })
+
+  it('can delete metadata', async function () {
+    const { wallet, config } = await makeFakeCurrencyWallet()
+
+    const metadata: EdgeMetadata = {
+      bizId: 1234,
+      name: 'me',
+      amountFiat: 0.75,
+      category: 'expense:Foot Massage',
+      notes: 'Hello World'
+    }
+    const newMetadata: EdgeMetadata = {
+      bizId: 1234,
+      name: 'me',
+      amountFiat: 0.75,
+      category: null,
+      notes: null
+    }
+
+    await config.changeUserSettings({
+      txs: { a: { nativeAmount: '25', metadata } }
+    })
+
+    const txs = await wallet.getTransactions({})
+    expect(txs.length).equals(1)
+    expect(txs[0].nativeAmount).equals('25')
+    expect(txs[0].metadata).deep.equals({
+      exchangeAmount: { 'iso:USD': 0.75 },
+      ...metadata
+    })
+
+    await wallet.saveTxMetadata('a', 'FAKE', newMetadata)
+    const txs2 = await wallet.getTransactions({})
+    expect(txs2.length).equals(1)
+    expect(txs2[0].nativeAmount).equals('25')
+    expect(txs2[0].metadata).deep.equals({
+      exchangeAmount: { 'iso:USD': 0.75 },
+      ...newMetadata
     })
   })
 

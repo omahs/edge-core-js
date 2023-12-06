@@ -51,18 +51,13 @@ export function searchStringFilter(
 
   if (checkNullTypeAndIndex(tx.nativeAmount)) return true
   if (tx.metadata != null) {
-    const {
-      category = '',
-      name = '',
-      notes = '',
-      exchangeAmount = {}
-    } = tx.metadata
+    const { category, name, notes, exchangeAmount = {} } = tx.metadata
     const txCurrencyWalletState =
       tx.walletId != null ? currencyState.wallets[tx.walletId] : undefined
     if (
-      checkNullTypeAndIndex(category) ||
-      checkNullTypeAndIndex(name) ||
-      checkNullTypeAndIndex(notes) ||
+      checkNullTypeAndIndex(category ?? '') ||
+      checkNullTypeAndIndex(name ?? '') ||
+      checkNullTypeAndIndex(notes ?? '') ||
       (txCurrencyWalletState != null &&
         checkNullTypeAndIndex(exchangeAmount[txCurrencyWalletState.fiat]))
     )
@@ -72,6 +67,22 @@ export function searchStringFilter(
     const { displayName = '', pluginId = '' } = tx.swapData.plugin
     if (checkNullTypeAndIndex(displayName) || checkNullTypeAndIndex(pluginId))
       return true
+  }
+  const action = tx.savedAction ?? tx.chainAction
+
+  if (action != null) {
+    if (action.actionType === 'swap') {
+      const { pluginId: destPluginId } = action.destAsset
+      const { pluginId: sourcePluginId } = action.sourceAsset
+      const { displayName, supportEmail } = action.swapInfo
+      if (
+        checkNullTypeAndIndex(sourcePluginId) ||
+        checkNullTypeAndIndex(destPluginId) ||
+        checkNullTypeAndIndex(displayName) ||
+        checkNullTypeAndIndex(supportEmail)
+      )
+        return true
+    }
   }
   if (tx.spendTargets != null) {
     for (const target of tx.spendTargets) {
