@@ -192,17 +192,22 @@ describe('currency wallets', function () {
       }
     })
 
-    await wallet.getTransactions({}).then(txs => {
+    await wallet.getTransactions({ tokenId: null }).then(txs => {
       expect(txs.length).equals(1)
       expect(txs[0].txid).equals('a')
       expect(txs[0].nativeAmount).equals('2')
     })
 
-    await wallet.getTransactions({ currencyCode: 'TOKEN' }).then(txs => {
-      expect(txs.length).equals(1)
-      expect(txs[0].txid).equals('b')
-      expect(txs[0].nativeAmount).equals('200')
-    })
+    await wallet
+      .getTransactions({
+        tokenId:
+          'f98103e9217f099208569d295c1b276f1821348636c268c854bb2a086e0037cd'
+      })
+      .then(txs => {
+        expect(txs.length).equals(1)
+        expect(txs[0].txid).equals('b')
+        expect(txs[0].nativeAmount).equals('200')
+      })
   })
 
   it('exposes builtin tokens', async function () {
@@ -292,7 +297,7 @@ describe('currency wallets', function () {
     expect(
       justTxids(
         await wallet.getTransactions({
-          currencyCode: 'BTC',
+          tokenId: 'madeupcontract',
           startIndex: 3,
           startEntries: 2
         })
@@ -302,7 +307,7 @@ describe('currency wallets', function () {
     expect(
       justTxids(
         await wallet.getTransactions({
-          currencyCode: 'BTC',
+          tokenId: 'madeupcontract',
           searchString: 'sideshift',
           startIndex: 2,
           startEntries: 2
@@ -342,12 +347,12 @@ describe('currency wallets', function () {
 
   it('search transactions', async function () {
     const { wallet, config } = await makeFakeCurrencyWallet()
-    await addDemoTransactions(config)
+    const tokenId = await addDemoTransactions(config)
 
     expect(
       justTxids(
         await wallet.getTransactions({
-          currencyCode: 'BTC'
+          tokenId
         })
       )
     ).deep.equals([
@@ -369,7 +374,7 @@ describe('currency wallets', function () {
     expect(
       justTxids(
         await wallet.getTransactions({
-          currencyCode: 'BTC',
+          tokenId,
           searchString: 'sideshift'
         })
       )
@@ -378,7 +383,7 @@ describe('currency wallets', function () {
     expect(
       justTxids(
         await wallet.getTransactions({
-          currencyCode: 'BTC',
+          tokenId,
           startDate: new Date('2021-01-30'),
           endDate: new Date('2021-02-05')
         })
@@ -509,7 +514,7 @@ describe('currency wallets', function () {
 
     // Validate the result:
     await log.waitFor(1).assert('new spend me')
-    const txs = await wallet.getTransactions({})
+    const txs = await wallet.getTransactions({ tokenId: null })
     expect(txs.length).equals(1)
     expect(txs[0].nativeAmount).equals('50')
     expect(txs[0].metadata).deep.equals({
@@ -583,7 +588,7 @@ describe('currency wallets', function () {
     await wallet.saveTxMetadata('a', 'FAKE', metadata)
     await wallet.saveTxAction('a', null, assetAction, savedAction)
 
-    const txs = await wallet.getTransactions({})
+    const txs = await wallet.getTransactions({ tokenId: null })
     expect(txs.length).equals(1)
     expect(txs[0].nativeAmount).equals('25')
     expect(txs[0].metadata).deep.equals({
@@ -618,7 +623,7 @@ describe('currency wallets', function () {
       txs: { a: { nativeAmount: '25', metadata } }
     })
 
-    const txs = await wallet.getTransactions({})
+    const txs = await wallet.getTransactions({ tokenId: null })
     expect(txs.length).equals(1)
     expect(txs[0].nativeAmount).equals('25')
     expect(txs[0].metadata).deep.equals({
@@ -627,7 +632,7 @@ describe('currency wallets', function () {
     })
 
     await wallet.saveTxMetadata('a', 'FAKE', newMetadata)
-    const txs2 = await wallet.getTransactions({})
+    const txs2 = await wallet.getTransactions({ tokenId: null })
     expect(txs2.length).equals(1)
     expect(txs2[0].nativeAmount).equals('25')
     expect(txs2[0].metadata).deep.equals({

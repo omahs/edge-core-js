@@ -766,7 +766,7 @@ export interface EdgeGetTransactionsOptions {
   startEntries?: number
 
   // Filtering:
-  currencyCode?: string
+  tokenId: string | null
   startDate?: Date
   endDate?: Date
   searchString?: string
@@ -795,7 +795,7 @@ export interface EdgeStreamTransactionOptions {
   searchString?: string
 
   /** The token to query, or undefined for the main currency */
-  tokenId?: string
+  tokenId: string | null
 }
 
 export type EdgeGetReceiveAddressOptions = EdgeCurrencyCodeOptions & {
@@ -879,9 +879,9 @@ export interface EdgeCurrencyEngine {
   // Chain state:
   readonly getBlockHeight: () => number
   readonly getBalance: (opts: EdgeTokenIdOptions) => string
-  readonly getNumTransactions: (opts: EdgeCurrencyCodeOptions) => number
+  readonly getNumTransactions: (opts: EdgeTokenIdOptions) => number
   readonly getTransactions: (
-    opts: EdgeCurrencyCodeOptions
+    opts: EdgeTokenIdOptions
   ) => Promise<EdgeTransaction[]>
   readonly getTxids?: () => EdgeTxidMap
 
@@ -1144,9 +1144,7 @@ export interface EdgeCurrencyWallet {
   readonly detectedTokenIds: string[]
 
   // Transaction history:
-  readonly getNumTransactions: (
-    opts?: EdgeCurrencyCodeOptions
-  ) => Promise<number>
+  readonly getNumTransactions: (opts?: EdgeTokenIdOptions) => Promise<number>
   readonly getTransactions: (
     opts?: EdgeGetTransactionsOptions
   ) => Promise<EdgeTransaction[]>

@@ -11,7 +11,6 @@ import { upgradeCurrencyCode } from '../../../types/type-helpers'
 import {
   EdgeAssetAction,
   EdgeBalances,
-  EdgeCurrencyCodeOptions,
   EdgeCurrencyConfig,
   EdgeCurrencyEngine,
   EdgeCurrencyInfo,
@@ -31,6 +30,7 @@ import {
   EdgeSpendTarget,
   EdgeStakingStatus,
   EdgeStreamTransactionOptions,
+  EdgeTokenIdOptions,
   EdgeTransaction,
   EdgeTxAction,
   EdgeWalletInfo
@@ -227,8 +227,16 @@ export function makeCurrencyWalletApi(
 
     // Transactions history:
     async getNumTransactions(
-      opts: EdgeCurrencyCodeOptions = {}
+      opts: EdgeTokenIdOptions = { tokenId: null }
     ): Promise<number> {
+      const { tokenId } = opts
+      const allTokens =
+        input.props.state.accounts[accountId].allTokens[pluginId]
+      const { currencyCode } =
+        tokenId == null ? this.currencyInfo : allTokens[tokenId]
+
+      // @ts-expect-error XXX Hack to maintain plugin compatibility
+      opts.currencyCode = currencyCode
       return engine.getNumTransactions(opts)
     },
 
@@ -244,21 +252,23 @@ export function makeCurrencyWalletApi(
         tokenId,
         unfilteredStart
       } = opts
+      const allTokens =
+        input.props.state.accounts[accountId].allTokens[pluginId]
+
       const { currencyCode } =
-        tokenId == null
-          ? this.currencyInfo
-          : this.currencyConfig.allTokens[tokenId]
+        tokenId == null ? this.currencyInfo : allTokens[tokenId]
 
       // Load transactions from the engine if necessary:
       let state = input.props.walletState
-      if (!state.gotTxs[currencyCode]) {
-        const txs = await engine.getTransactions({ currencyCode })
+      if (!state.gotTxs[tokenId ?? PARENT_TOKEN_ID]) {
+        // @ts-expect-error XXX Hack to maintain plugin compatibility
+        const txs = await engine.getTransactions({ tokenId, currencyCode })
         fakeCallbacks.onTransactionsChanged(txs)
         input.props.dispatch({
           type: 'CURRENCY_ENGINE_GOT_TXS',
           payload: {
             walletId: input.props.walletId,
-            currencyCode
+            tokenId
           }
         })
         state = input.props.walletState
@@ -336,21 +346,16 @@ export function makeCurrencyWalletApi(
     },
 
     async getTransactions(
-      opts: EdgeGetTransactionsOptions = {}
+      opts: EdgeGetTransactionsOptions = { tokenId: null }
     ): Promise<EdgeTransaction[]> {
       const {
-        currencyCode = plugin.currencyInfo.currencyCode,
         endDate: beforeDate,
         startDate: afterDate,
         searchString,
         startEntries,
-        startIndex = 0
+        startIndex = 0,
+        tokenId
       } = opts
-      const { tokenId } = upgradeCurrencyCode({
-        allTokens: input.props.state.accounts[accountId].allTokens[pluginId],
-        currencyInfo: plugin.currencyInfo,
-        currencyCode
-      })
 
       const stream = await out.$internalStreamTransactions({
         unfilteredStart: startIndex,
