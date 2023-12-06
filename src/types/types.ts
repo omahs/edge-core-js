@@ -256,7 +256,7 @@ export interface EdgeMemo {
 
 export interface EdgeAssetAmount {
   pluginId: string
-  tokenId?: string
+  tokenId: string | null
   nativeAmount?: string
 }
 
