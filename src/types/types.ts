@@ -1031,6 +1031,10 @@ export interface EdgeBalances {
   [currencyCode: string]: string
 }
 
+export interface EdgeTokenBalances {
+  [tokenId: string]: string
+}
+
 export type EdgeReceiveAddress = EdgeFreshAddress & {
   metadata: EdgeMetadata
   nativeAmount: string
@@ -1124,6 +1128,7 @@ export interface EdgeCurrencyWallet {
 
   // Chain state:
   readonly balances: EdgeBalances
+  readonly tokenBalances: EdgeTokenBalances
   readonly blockHeight: number
   readonly syncRatio: number
   readonly unactivatedTokenIds: string[]

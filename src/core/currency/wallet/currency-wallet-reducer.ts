@@ -7,6 +7,7 @@ import {
   EdgeCurrencyInfo,
   EdgeMemo,
   EdgeStakingStatus,
+  EdgeTokenBalances,
   EdgeTransaction,
   EdgeTxAction,
   EdgeWalletInfo,
@@ -73,6 +74,7 @@ export interface CurrencyWalletState {
 
   readonly allEnabledTokenIds: string[]
   readonly balances: EdgeBalances
+  readonly tokenBalances: EdgeTokenBalances
   readonly currencyInfo: EdgeCurrencyInfo
   readonly detectedTokenIds: string[]
   readonly enabledTokenIds: string[]
@@ -274,6 +276,15 @@ const currencyWalletInner = buildReducer<
       const out = { ...state }
 
       out[currencyCode] = action.payload.balance
+      return out
+    }
+    return state
+  },
+
+  tokenBalances(state = {}, action): EdgeBalances {
+    if (action.type === 'CURRENCY_ENGINE_CHANGED_BALANCE') {
+      const out = { ...state }
+      out[action.payload.tokenId ?? PARENT_TOKEN_ID] = action.payload.balance
       return out
     }
     return state

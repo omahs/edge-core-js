@@ -14,7 +14,8 @@ import {
   EdgeTransaction,
   EdgeTxAction,
   EdgeTxSwap,
-  makeFakeEdgeWorld
+  makeFakeEdgeWorld,
+  PARENT_TOKEN_ID
 } from '../../../../src/index'
 import { expectRejection } from '../../../expect-rejection'
 import { walletTxs } from '../../../fake/fake-transactions'
@@ -97,6 +98,9 @@ describe('currency wallets', function () {
     wallet.watch('balances', balances => {
       log('balances', balances)
     })
+    wallet.watch('tokenBalances', tokenBalances => {
+      log('tokenBalances', tokenBalances)
+    })
     wallet.watch('blockHeight', blockHeight => {
       log('blockHeight', blockHeight)
     })
@@ -116,7 +120,16 @@ describe('currency wallets', function () {
 
     await config.changeUserSettings({ tokenBalance: 30 })
     await log.waitFor(1).assert('balances { FAKE: "0", TOKEN: "30" }')
+    await log
+      .waitFor(1)
+      .assert(
+        `tokenBalances { ${PARENT_TOKEN_ID}: "0", f98103e9217f099208569d295c1b276f1821348636c268c854bb2a086e0037cd: "30" }`
+      )
     expect(wallet.balances).to.deep.equal({ FAKE: '0', TOKEN: '30' })
+    expect(wallet.tokenBalances).to.deep.equal({
+      [PARENT_TOKEN_ID]: '0',
+      f98103e9217f099208569d295c1b276f1821348636c268c854bb2a086e0037cd: '30'
+    })
 
     await config.changeUserSettings({ blockHeight: 200 })
     await log.waitFor(1).assert('blockHeight 200')
@@ -131,6 +144,11 @@ describe('currency wallets', function () {
     expect(wallet.balances).to.deep.equal({ FAKE: '1234567890', TOKEN: '30' })
 
     await config.changeUserSettings({ stakedBalance: 543 })
+    await log
+      .waitFor(1)
+      .assert(
+        `tokenBalances { ${PARENT_TOKEN_ID}: "1234567890", f98103e9217f099208569d295c1b276f1821348636c268c854bb2a086e0037cd: "30" }`
+      )
     await log.waitFor(1).assert('stakingStatus 543')
     expect(wallet.stakingStatus).deep.equals({
       stakedAmounts: [{ nativeAmount: '543' }]

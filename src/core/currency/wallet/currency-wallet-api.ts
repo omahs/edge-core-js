@@ -177,6 +177,9 @@ export function makeCurrencyWalletApi(
     get balances(): EdgeBalances {
       return input.props.walletState.balances
     },
+    get tokenBalances(): EdgeBalances {
+      return input.props.walletState.tokenBalances
+    },
     get blockHeight(): number {
       const { skipBlockHeight } = input.props.state
       return skipBlockHeight ? 0 : input.props.walletState.height
