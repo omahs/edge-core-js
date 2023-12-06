@@ -1182,7 +1182,7 @@ export interface EdgeCurrencyWallet {
 
   readonly saveTxMetadata: (
     txid: string,
-    currencyCode: string,
+    tokenId: string | null,
     metadata: EdgeMetadata
   ) => Promise<void>
   readonly signTx: (tx: EdgeTransaction) => Promise<EdgeTransaction>

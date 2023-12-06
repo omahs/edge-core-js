@@ -7,7 +7,6 @@ import {
   InternalWalletStream,
   streamTransactions
 } from '../../../client-side'
-import { upgradeCurrencyCode } from '../../../types/type-helpers'
 import {
   EdgeAssetAction,
   EdgeBalances,
@@ -576,17 +575,14 @@ export function makeCurrencyWalletApi(
     },
     async saveTxMetadata(
       txid: string,
-      currencyCode: string,
+      tokenId: string | null,
       metadata: EdgeMetadata
     ): Promise<void> {
       const { accountApi } = input.props.output.accounts[accountId]
       const { allTokens, currencyInfo } = accountApi.currencyConfig[pluginId]
 
-      const { tokenId = null } = upgradeCurrencyCode({
-        allTokens,
-        currencyInfo,
-        currencyCode
-      })
+      const { currencyCode } =
+        tokenId == null ? currencyInfo : allTokens[tokenId]
 
       await setCurrencyWalletTxMetadata(
         input,
