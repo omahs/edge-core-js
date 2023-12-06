@@ -738,10 +738,6 @@ export interface EdgeEncodeUri {
 
 // options -------------------------------------------------------------
 
-export interface EdgeCurrencyCodeOptions {
-  currencyCode?: string
-}
-
 export interface EdgeTokenIdOptions {
   tokenId: string | null
 }
@@ -798,7 +794,7 @@ export interface EdgeStreamTransactionOptions {
   tokenId: string | null
 }
 
-export type EdgeGetReceiveAddressOptions = EdgeCurrencyCodeOptions & {
+export type EdgeGetReceiveAddressOptions = EdgeTokenIdOptions & {
   forceIndex?: number
 }
 

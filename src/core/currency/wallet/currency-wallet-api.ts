@@ -381,8 +381,16 @@ export function makeCurrencyWalletApi(
 
     // Addresses:
     async getReceiveAddress(
-      opts: EdgeGetReceiveAddressOptions = {}
+      opts: EdgeGetReceiveAddressOptions = { tokenId: null }
     ): Promise<EdgeReceiveAddress> {
+      const { tokenId } = opts
+      const allTokens =
+        input.props.state.accounts[accountId].allTokens[pluginId]
+      const { currencyCode } =
+        tokenId == null ? this.currencyInfo : allTokens[tokenId]
+
+      // @ts-expect-error XXX Hack to maintain plugin compatibility
+      opts.currencyCode = currencyCode
       const freshAddress = await engine.getFreshAddress(opts)
       const receiveAddress: EdgeReceiveAddress = {
         ...freshAddress,
