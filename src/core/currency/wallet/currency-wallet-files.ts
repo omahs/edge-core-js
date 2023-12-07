@@ -549,7 +549,6 @@ export async function setupNewTxMetadata(
   // Set up payees:
   if (spendTargets != null) {
     json.payees = spendTargets.map(target => ({
-      currency: target.currencyCode,
       address: target.publicAddress,
       amount: target.nativeAmount,
       tag: target.memo

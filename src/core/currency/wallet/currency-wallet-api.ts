@@ -409,15 +409,23 @@ export function makeCurrencyWalletApi(
       return await engine.broadcastTx(tx, { privateKeys })
     },
     async getMaxSpendable(spendInfo: EdgeSpendInfo): Promise<string> {
-      spendInfo = upgradeMemos(spendInfo, plugin.currencyInfo)
+      const { accountApi } = input.props.output.accounts[accountId]
+      const { allTokens } = accountApi.currencyConfig[pluginId]
+      const { tokenId, networkFeeOption, customNetworkFee } = spendInfo
+      const { currencyCode } =
+        tokenId == null ? plugin.currencyInfo : allTokens[tokenId]
+
+      // @ts-expect-error XXX Hack to maintain plugin compatibility
+      spendInfo.currencyCode = currencyCode
+
       if (typeof engine.getMaxSpendable === 'function') {
         // Only provide wallet info if currency requires it:
         const privateKeys = unsafeMakeSpend ? walletInfo.keys : undefined
 
         return await engine.getMaxSpendable(spendInfo, { privateKeys })
       }
-      const { currencyCode, networkFeeOption, customNetworkFee } = spendInfo
-      const balance = engine.getBalance({ currencyCode })
+      // @ts-expect-error XXX Hack to maintain plugin compatibility
+      const balance = engine.getBalance({ tokenId, currencyCode })
 
       // Copy all the spend targets, setting the amounts to 0
       // but keeping all other information so we can get accurate fees:
@@ -442,7 +450,7 @@ export function makeCurrencyWalletApi(
         return engine
           .makeSpend(
             {
-              currencyCode,
+              tokenId,
               spendTargets,
               networkFeeOption,
               customNetworkFee
@@ -467,6 +475,9 @@ export function makeCurrencyWalletApi(
     },
     async makeSpend(spendInfo: EdgeSpendInfo): Promise<EdgeTransaction> {
       spendInfo = upgradeMemos(spendInfo, plugin.currencyInfo)
+      const { accountApi } = input.props.output.accounts[accountId]
+      const { allTokens } = accountApi.currencyConfig[pluginId]
+
       const {
         customNetworkFee,
         metadata,
@@ -480,16 +491,15 @@ export function makeCurrencyWalletApi(
         skipChecks,
         savedAction,
         spendTargets = [],
-        swapData
+        swapData,
+        tokenId
       } = spendInfo
 
-      // Figure out which asset this is:
-      const { currencyCode, tokenId } = upgradeCurrencyCode({
-        allTokens: input.props.state.accounts[accountId].allTokens[pluginId],
-        currencyInfo: plugin.currencyInfo,
-        currencyCode: spendInfo.currencyCode,
-        tokenId: spendInfo.tokenId
-      })
+      const { currencyCode } =
+        tokenId == null ? plugin.currencyInfo : allTokens[tokenId]
+
+      // @ts-expect-error XXX Hack to maintain plugin compatibility
+      spendInfo.currencyCode = currencyCode
 
       // Check the spend targets:
       const cleanTargets: EdgeSpendTarget[] = []
@@ -511,7 +521,6 @@ export function makeCurrencyWalletApi(
           uniqueIdentifier: memo
         })
         savedTargets.push({
-          currencyCode,
           memo,
           nativeAmount,
           publicAddress,
@@ -528,6 +537,7 @@ export function makeCurrencyWalletApi(
 
       const tx: EdgeTransaction = await engine.makeSpend(
         {
+          // @ts-expect-error XXX Hack to maintain plugin compatibility
           currencyCode,
           customNetworkFee,
           memos,
@@ -549,7 +559,6 @@ export function makeCurrencyWalletApi(
       if (metadata != null) tx.metadata = metadata
 
       // Looks redundant but we want undefined or null to be coalesced into null
-      if (tx.tokenId == null) tx.tokenId = null
       if (swapData != null) tx.swapData = asEdgeTxSwap(swapData)
       if (savedAction != null) tx.savedAction = asEdgeTxAction(savedAction)
       if (assetAction != null) tx.assetAction = asEdgeAssetAction(assetAction)
@@ -751,7 +760,6 @@ export function combineTxWithFile(
 
     if (file.payees != null) {
       out.spendTargets = file.payees.map(payee => ({
-        currencyCode: payee.currency,
         memo: payee.tag,
         nativeAmount: payee.amount,
         publicAddress: payee.address,

@@ -572,7 +572,6 @@ export interface EdgeTransaction {
   requestedCustomFee?: JsonObject
   feeRateUsed?: JsonObject
   spendTargets?: Array<{
-    readonly currencyCode: string
     readonly nativeAmount: string
     readonly publicAddress: string
 
@@ -621,7 +620,7 @@ export interface EdgePaymentProtocolInfo {
 
 export interface EdgeSpendInfo {
   // Basic information:
-  tokenId?: string
+  tokenId: string | null
   privateKeys?: string[]
   spendTargets: EdgeSpendTarget[]
   memos?: EdgeMemo[]
@@ -640,9 +639,6 @@ export interface EdgeSpendInfo {
   assetAction?: EdgeAssetAction
   savedAction?: EdgeTxAction
   otherParams?: JsonObject
-
-  /** @deprecated Use tokenId instead */
-  currencyCode?: string
 }
 
 // query data ----------------------------------------------------------
@@ -746,6 +742,9 @@ export interface EdgeCurrencyCodeOptions {
   currencyCode?: string
 }
 
+export interface EdgeTokenIdOptions {
+  tokenId: string | null
+}
 export interface EdgeGetTransactionsOptions {
   /**
    * The first transaction to return.
@@ -879,7 +878,7 @@ export interface EdgeCurrencyEngine {
 
   // Chain state:
   readonly getBlockHeight: () => number
-  readonly getBalance: (opts: EdgeCurrencyCodeOptions) => string
+  readonly getBalance: (opts: EdgeTokenIdOptions) => string
   readonly getNumTransactions: (opts: EdgeCurrencyCodeOptions) => number
   readonly getTransactions: (
     opts: EdgeCurrencyCodeOptions
