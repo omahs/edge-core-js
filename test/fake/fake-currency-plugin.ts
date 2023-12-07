@@ -1,5 +1,5 @@
 import { add, lt } from 'biggystring'
-import { asNumber, asObject, asOptional, asString } from 'cleaners'
+import { asBoolean, asNumber, asObject, asOptional, asString } from 'cleaners'
 
 import {
   EdgeCurrencyCodeOptions,
@@ -56,6 +56,7 @@ const fakeCurrencyInfo: EdgeCurrencyInfo = {
 }
 
 interface State {
+  withTokenIds: boolean
   balance: number
   stakedBalance: number
   tokenBalance: number
@@ -65,6 +66,7 @@ interface State {
 }
 
 const asState = asObject({
+  withTokenIds: asOptional(asBoolean, false),
   balance: asOptional(asNumber),
   stakedBalance: asOptional(asNumber),
   tokenBalance: asOptional(asNumber),
@@ -87,6 +89,7 @@ class FakeCurrencyEngine implements EdgeCurrencyEngine {
     this.callbacks = opts.callbacks
     this.running = false
     this.state = {
+      withTokenIds: false,
       balance: 0,
       stakedBalance: 0,
       tokenBalance: 0,
@@ -103,10 +106,13 @@ class FakeCurrencyEngine implements EdgeCurrencyEngine {
     const {
       onAddressesChecked = nop,
       onBalanceChanged = nop,
+      onTokenBalanceChanged = nop,
       onBlockHeightChanged = nop,
       onStakingStatusChanged = nop,
       onTransactionsChanged = nop
     } = this.callbacks
+
+    const { withTokenIds = false } = settings
 
     // Address callback:
     if (settings.progress != null) {
@@ -117,7 +123,11 @@ class FakeCurrencyEngine implements EdgeCurrencyEngine {
     // Balance callback:
     if (settings.balance != null) {
       state.balance = settings.balance
-      onBalanceChanged('FAKE', state.balance.toString())
+      if (withTokenIds) {
+        onTokenBalanceChanged(null, state.balance.toString())
+      } else {
+        onBalanceChanged('FAKE', state.balance.toString())
+      }
     }
 
     // Staking status callback:
@@ -131,7 +141,14 @@ class FakeCurrencyEngine implements EdgeCurrencyEngine {
     // Token balance callback:
     if (settings.tokenBalance != null) {
       state.tokenBalance = settings.tokenBalance
-      onBalanceChanged('TOKEN', state.tokenBalance.toString())
+      if (withTokenIds) {
+        onTokenBalanceChanged(
+          'f98103e9217f099208569d295c1b276f1821348636c268c854bb2a086e0037cd',
+          state.tokenBalance.toString()
+        )
+      } else {
+        onBalanceChanged('TOKEN', state.tokenBalance.toString())
+      }
     }
 
     // Block height callback:

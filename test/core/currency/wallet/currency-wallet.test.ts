@@ -136,6 +136,14 @@ describe('currency wallets', function () {
       stakedAmounts: [{ nativeAmount: '543' }]
     })
 
+    await config.changeUserSettings({
+      balance: 101,
+      tokenBalance: 40,
+      withTokenIds: true
+    })
+    await log.waitFor(1).assert('balances { FAKE: "101", TOKEN: "40" }')
+    expect(wallet.balances).to.deep.equal({ FAKE: '101', TOKEN: '40' })
+
     // New transactions:
     await config.changeUserSettings({
       txs: {

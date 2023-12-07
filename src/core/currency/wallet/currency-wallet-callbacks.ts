@@ -173,6 +173,28 @@ export function makeCurrencyWalletCallbacks(
       })
     },
 
+    onTokenBalanceChanged(tokenId: string | null, balance: string) {
+      const clean = asMaybe(asIntegerString)(balance)
+      if (clean == null) {
+        input.props.onError(
+          new Error(
+            `Plugin sent bogus balance for ${String(tokenId)}: "${balance}"`
+          )
+        )
+        return
+      }
+      pushUpdate({
+        id: `${walletId}==${tokenId}`,
+        action: 'onTokenBalanceChanged',
+        updateFunc: () => {
+          input.props.dispatch({
+            type: 'CURRENCY_ENGINE_CHANGED_BALANCE',
+            payload: { balance: clean, tokenId, walletId }
+          })
+        }
+      })
+    },
+
     onBalanceChanged(currencyCode: string, balance: string) {
       const clean = asMaybe(asIntegerString)(balance)
       if (clean == null) {
@@ -183,13 +205,21 @@ export function makeCurrencyWalletCallbacks(
         )
         return
       }
+
+      const { allTokens, currencyInfo } = currencyConfig
+      const { tokenId = null } = upgradeCurrencyCode({
+        allTokens,
+        currencyInfo,
+        currencyCode
+      })
+
       pushUpdate({
         id: `${walletId}==${currencyCode}`,
         action: 'onBalanceChanged',
         updateFunc: () => {
           input.props.dispatch({
             type: 'CURRENCY_ENGINE_CHANGED_BALANCE',
-            payload: { balance: clean, currencyCode, walletId }
+            payload: { balance: clean, tokenId, walletId }
           })
         }
       })

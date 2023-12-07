@@ -838,6 +838,10 @@ export interface EdgeCurrencyEngineCallbacks {
     currencyCode: string,
     nativeBalance: string
   ) => void
+  readonly onTokenBalanceChanged: (
+    tokenId: string | null,
+    balance: string
+  ) => void
   readonly onNewTokens: (tokenIds: string[]) => void
   readonly onStakingStatusChanged: (status: EdgeStakingStatus) => void
   readonly onTransactionsChanged: (transactions: EdgeTransaction[]) => void
