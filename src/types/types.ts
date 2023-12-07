@@ -833,6 +833,13 @@ export interface EdgeSaveTxMetadataOptions {
   tokenId: string | null
   metadata: EdgeMetadata
 }
+
+export interface EdgeSaveTxActionOptions {
+  txid: string
+  tokenId: string | null
+  assetAction: EdgeAssetAction
+  savedAction: EdgeTxAction
+}
 // engine --------------------------------------------------------------
 
 export interface EdgeCurrencyEngineCallbacks {
@@ -1176,12 +1183,7 @@ export interface EdgeCurrencyWallet {
   ) => Promise<EdgePaymentProtocolInfo>
   readonly makeSpend: (spendInfo: EdgeSpendInfo) => Promise<EdgeTransaction>
   readonly saveTx: (tx: EdgeTransaction) => Promise<void>
-  readonly saveTxAction: (
-    txid: string,
-    tokenId: string | null,
-    assetAction: EdgeAssetAction,
-    savedAction: EdgeTxAction
-  ) => Promise<void>
+  readonly saveTxAction: (opts: EdgeSaveTxActionOptions) => Promise<void>
 
   readonly saveTxMetadata: (opts: EdgeSaveTxMetadataOptions) => Promise<void>
   readonly signTx: (tx: EdgeTransaction) => Promise<EdgeTransaction>

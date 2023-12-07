@@ -8,7 +8,6 @@ import {
   streamTransactions
 } from '../../../client-side'
 import {
-  EdgeAssetAction,
   EdgeBalances,
   EdgeCurrencyConfig,
   EdgeCurrencyEngine,
@@ -30,7 +29,6 @@ import {
   EdgeStreamTransactionOptions,
   EdgeTokenIdOptions,
   EdgeTransaction,
-  EdgeTxAction,
   EdgeWalletInfo
 } from '../../../types/types'
 import { mergeDeeply, mergeDeeplyNull } from '../../../util/util'
@@ -575,12 +573,8 @@ export function makeCurrencyWalletApi(
       await engine.saveTx(tx)
       fakeCallbacks.onTransactionsChanged([tx])
     },
-    async saveTxAction(
-      txid: string,
-      tokenId: string | null,
-      assetAction: EdgeAssetAction,
-      savedAction: EdgeTxAction
-    ): Promise<void> {
+    async saveTxAction(opts): Promise<void> {
+      const { txid, tokenId, assetAction, savedAction } = opts
       const { accountApi } = input.props.output.accounts[accountId]
       const { allTokens, currencyInfo } = accountApi.currencyConfig[pluginId]
       const { currencyCode } =
