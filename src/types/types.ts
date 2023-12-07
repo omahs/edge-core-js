@@ -828,6 +828,11 @@ export interface EdgeSignMessageOptions {
   otherParams?: JsonObject
 }
 
+export interface EdgeSaveTxMetadataOptions {
+  txid: string
+  tokenId: string | null
+  metadata: EdgeMetadata
+}
 // engine --------------------------------------------------------------
 
 export interface EdgeCurrencyEngineCallbacks {
@@ -1178,11 +1183,7 @@ export interface EdgeCurrencyWallet {
     savedAction: EdgeTxAction
   ) => Promise<void>
 
-  readonly saveTxMetadata: (
-    txid: string,
-    currencyCode: string,
-    metadata: EdgeMetadata
-  ) => Promise<void>
+  readonly saveTxMetadata: (opts: EdgeSaveTxMetadataOptions) => Promise<void>
   readonly signTx: (tx: EdgeTransaction) => Promise<EdgeTransaction>
   readonly sweepPrivateKeys: (
     edgeSpendInfo: EdgeSpendInfo

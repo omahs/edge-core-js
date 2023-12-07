@@ -217,7 +217,11 @@ async function protectBchWallet(wallet: EdgeCurrencyWallet): Promise<void> {
     notes:
       'This transaction is to protect your BCH wallet from unintentionally spending BSV funds. Please wait for the transaction to confirm before making additional transactions using this BCH wallet.'
   }
-  await wallet.saveTxMetadata(broadcastedTaintTx.txid, 'BCH', edgeMetadata)
+  await wallet.saveTxMetadata({
+    txid: broadcastedTaintTx.txid,
+    tokenId: null,
+    metadata: edgeMetadata
+  })
 }
 
 /**
